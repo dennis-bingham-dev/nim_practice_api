@@ -5,8 +5,8 @@ import norm/[model, sqlite]
 
 let dbConn = open(":memory:", "", "", "")
 
-proc msgjson(msg: string): string =
-  """{"msg": $#}""" % [msg]
+proc messageJson(msg: string): string =
+  """{"message": $#}""" % [msg]
 
 type
   User* = ref object of Model
@@ -28,10 +28,16 @@ routes:
                 except: newJNull()
 
     if body.isNil:
-      resp(Http500, msgjson("invalid json"), contentType="application/json")
+      resp(Http500, messageJson("invalid json"), contentType="application/json")
       
-    var user: User = User(firstName: body["firstName"].getStr(), lastName: body["lastName"].getStr(), phoneNumber: body["phoneNumber"].getStr(), email: body["email"].getStr())
+    var user: User = User(
+      firstName: body["firstName"].getStr(),
+      lastName: body["lastName"].getStr(),
+      phoneNumber: body["phoneNumber"].getStr(),
+      email: body["email"].getStr()
+    )
+
     dbConn.insert(user)
-    resp(Http201, msgjson("User Created"), contentType="application/json")
+    resp(Http201, messageJson("User Created"), contentType="application/json")
 
 runForever()
